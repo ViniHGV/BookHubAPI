@@ -1,29 +1,25 @@
 using BookHub.API.Dtos;
 using BookHub.API.Entities;
-using BookHub.API.Infra.Persistence;
-using Microsoft.EntityFrameworkCore;
+using BookHub.API.Infra.Persistence.Repositories;
 
-namespace BookHub.API.Services
+namespace BookHub.API.Services.AuthorService
 {
-    public class AuthorsService : IAuthorsService
+    public class AuthorsService(AuthorsRepository _authorsRepository) : IAuthorsService
     {
-        private readonly AppDbContext _appDbContext;
-        public AuthorsService(AppDbContext _appDbContext) =>
-            this._appDbContext = _appDbContext;
+        private AuthorsRepository _authorsRepository { get; set; } = _authorsRepository;
 
-        public async Task<Author> CreateAuthor(AuthorRequestDTO authorRequestDTO)
+        public async Task<bool> CreateAuthor(CreateAuthorRequestDTO authorRequestDTO)
         {
-            var newAuthor = new Author
-            {
-                Name = authorRequestDTO.Name
-            };
+            var searchAutor = await _authorsRepository.GetByName(authorRequestDTO.Name);
+
+            if (searchAutor != null)
+                throw new ArgumentException("Autor já existe no sistema!!");
 
             try
             {
-                await _appDbContext.Authors.AddAsync(newAuthor);
-                await _appDbContext.SaveChangesAsync();
+                await _authorsRepository.Create(authorRequestDTO);
 
-                return newAuthor;
+                return true;
             }
             catch (Exception e)
             {
@@ -31,19 +27,24 @@ namespace BookHub.API.Services
             }
         }
 
-        public async Task<List<Author>> GetAllAuthors()
+        public async Task<List<Author>> GetAllAuthors(int pageSkip)
         {
-            return await _appDbContext.Authors
-                .Include(x => x.Books)
-                .ToListAsync();
+            return await _authorsRepository.GetAll(pageSkip);
         }
 
         public async Task<Author> GetAuthorById(int id)
         {
-            return await _appDbContext.Authors
-                .Include(x => x.Books)
-                .FirstOrDefaultAsync(x => x.Id == id);
+            var author = await _authorsRepository.GetById(id, 0);
+
+            if (author == null)
+                throw new ArgumentException("Autor não encontrado, insira um Autor que existe!");
+
+            return author;
         }
 
+        public async Task<bool> UpdateAuthor(int id, CreateAuthorRequestDTO authorRequestDTO)
+        {
+            return await _authorsRepository.Update(id, authorRequestDTO);
+        }
     }
 }
