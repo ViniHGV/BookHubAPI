@@ -6,25 +6,22 @@ namespace BookHub.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class BookController(BookService _bookService) : ControllerBase
+    public class BookController(IBookService bookService) : ControllerBase
     {
-        private readonly BookService _bookService = _bookService;
+        private readonly IBookService _bookService = bookService;
 
         [HttpGet]
         public async Task<IActionResult> GetAllBooks([FromQuery] int pageSkip)
         {
-            var allBooks = await _bookService.GetAllBooks(pageSkip);
-
-            return Ok(allBooks);
+            return Ok(await _bookService.GetAllBooks(pageSkip));
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateBook([FromBody] CreateBookRequestDTO requestDTO)
         {
-            await _bookService.CreateBook(requestDTO);
-
             try
             {
+                await _bookService.CreateBook(requestDTO);
                 return Ok("Livro adicionado com sucesso!");
             }
             catch (Exception e)
@@ -37,11 +34,41 @@ namespace BookHub.API.Controllers
         [Route("{id}")]
         public async Task<IActionResult> GetBookById([FromRoute] int id)
         {
-            var bookById = await _bookService.GetBookById(id);
-
             try
             {
+                var bookById = await _bookService.GetBookById(id);
                 return Ok(bookById);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
+        [HttpPut]
+        [Route("{id}")]
+        public async Task<IActionResult> UpdateBook([FromRoute] int id,
+             [FromBody] UpdateBookRequestDTO updateBookRequestDTO)
+        {
+            try
+            {
+                await _bookService.UpdateBook(id, updateBookRequestDTO);
+                return Ok("Livro Editado com sucesso!");
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public async Task<IActionResult> DeleteBook([FromRoute] int id)
+        {
+            try
+            {
+                await _bookService.RemoveBook(id);
+                return Ok("Livro deletado com sucesso!");
             }
             catch (Exception e)
             {
