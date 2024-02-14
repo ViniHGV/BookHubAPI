@@ -1,12 +1,12 @@
+using BookHub.API.Contract;
 using BookHub.API.Dtos;
 using BookHub.API.Entities;
-using BookHub.API.Infra.Persistence.Repositories;
 
 namespace BookHub.API.Services.BookService
 {
-    public class BookService(BookRepository _bookRepository) : IBookService
+    public class BookService(IBookRepository bookRepository) : IBookService
     {
-        private BookRepository _bookRepository { get; set; } = _bookRepository;
+        private readonly IBookRepository _bookRepository = bookRepository;
 
         public async Task<bool> CreateBook(CreateBookRequestDTO BookRequestDTO)
         {
@@ -34,6 +34,11 @@ namespace BookHub.API.Services.BookService
         public async Task<Book> GetBookById(int id)
         {
             return await _bookRepository.GetById(id, 0);
+        }
+
+        public async Task<bool> RemoveBook(int id)
+        {
+            return await _bookRepository.Delete(id);
         }
 
         public async Task<bool> UpdateBook(int id, UpdateBookRequestDTO BookRequestDTO)
