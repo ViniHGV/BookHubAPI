@@ -2,7 +2,7 @@
 
 ## 📋Descrição
 
-- A BookHub API é uma plataforma robusta e altamente escalável desenvolvida em Django com Python, projetada para gerenciar uma biblioteca completa, incluindo livros, autores e categorias. A API segue os princípios SOLID e oferece uma ampla gama de funcionalidades para atender às necessidades de uma biblioteca moderna.
+- A BookHub API é uma plataforma robusta e altamente escalável desenvolvida em ASP.NET e .NET C#, projetada para gerenciar uma biblioteca completa, incluindo livros, autores e categorias. A API segue os princípios SOLID e oferece uma ampla gama de funcionalidades para atender às necessidades de uma biblioteca moderna.
 
 ## 🚀 Funcionalidades Adicionadas
 
