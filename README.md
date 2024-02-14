@@ -72,6 +72,12 @@
    dotnet ef migrations add NomeDaMigração
 ```
 
+- Após a criação das migrações atualize seu banco de dados.
+
+```bash
+   dotnet ef database update
+```
+
 - Inicie o servidor ASP.NET e acesse a API por meio dos endpoints fornecidos por meio do Swagger.
 
 ```bash
