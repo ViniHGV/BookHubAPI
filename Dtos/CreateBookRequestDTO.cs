@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using BookHub.API.Entities;
 
 namespace BookHub.API.Dtos
 {
