@@ -1,12 +1,12 @@
+using BookHub.API.Contract;
 using BookHub.API.Dtos;
 using BookHub.API.Entities;
-using BookHub.API.Infra.Persistence.Repositories;
 
 namespace BookHub.API.Services.AuthorService
 {
-    public class AuthorsService(AuthorsRepository _authorsRepository) : IAuthorsService
+    public class AuthorsService(IAuthorRepository authorsRepository) : IAuthorsService
     {
-        private AuthorsRepository _authorsRepository { get; set; } = _authorsRepository;
+        private readonly IAuthorRepository _authorsRepository = authorsRepository;
 
         public async Task<bool> CreateAuthor(CreateAuthorRequestDTO authorRequestDTO)
         {
@@ -27,24 +27,28 @@ namespace BookHub.API.Services.AuthorService
             }
         }
 
+        public async Task<bool> DeleteAuthor(int id)
+        {
+            return await _authorsRepository.Delete(id);
+        }
+
         public async Task<List<Author>> GetAllAuthors(int pageSkip)
         {
             return await _authorsRepository.GetAll(pageSkip);
         }
 
-        public async Task<Author> GetAuthorById(int id)
+        public async Task<Author> GetAuthorById(int id, int pageSkip)
         {
-            var author = await _authorsRepository.GetById(id, 0);
-
-            if (author == null)
-                throw new ArgumentException("Autor não encontrado, insira um Autor que existe!");
-
-            return author;
+            return await _authorsRepository.GetById(id, pageSkip);
         }
 
         public async Task<bool> UpdateAuthor(int id, CreateAuthorRequestDTO authorRequestDTO)
         {
-            return await _authorsRepository.Update(id, authorRequestDTO);
+            var authorByName = await _authorsRepository.GetByName(authorRequestDTO.Name);
+
+            return authorByName != null
+            ? throw new ArgumentException("Autor já existe no sistema!")
+            : await _authorsRepository.Update(id, authorRequestDTO);
         }
     }
 }
