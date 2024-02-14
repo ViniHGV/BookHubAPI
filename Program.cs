@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using BookHub.API.Contract;
 using BookHub.API.Infra.Persistence;
 using BookHub.API.Infra.Persistence.Repositories;
 using BookHub.API.Services.AuthorService;
@@ -13,12 +14,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AppDbContext>();
-builder.Services.AddScoped<AuthorsRepository>();
+
+builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 builder.Services.AddScoped<IAuthorsService, AuthorsService>();
-builder.Services.AddScoped<BookRepository>();
-builder.Services.AddScoped<BookService>();
-builder.Services.AddScoped<CategoryRepository>();
-builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // Resolve o erro de inclusão em relacionamentos
 builder.Services.AddControllers().AddJsonOptions(x =>
