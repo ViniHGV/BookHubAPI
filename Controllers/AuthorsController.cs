@@ -7,9 +7,9 @@ namespace BookHub.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthorsController(IAuthorsService _authorsService) : ControllerBase
+    public class AuthorsController(IAuthorsService authorsService) : ControllerBase
     {
-        private readonly IAuthorsService _authorsService = _authorsService;
+        private readonly IAuthorsService _authorsService = authorsService;
 
         [HttpGet]
         public async Task<IActionResult> GetAllAuthors([FromQuery] int pageSkip)
@@ -20,10 +20,9 @@ namespace BookHub.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAuthor(CreateAuthorRequestDTO authorRequestDTO)
         {
-            await _authorsService.CreateAuthor(authorRequestDTO);
-
             try
             {
+                await _authorsService.CreateAuthor(authorRequestDTO);
                 return Ok("Autor Criado com sucesso!");
             }
             catch (Exception e)
@@ -34,15 +33,14 @@ namespace BookHub.API.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<IActionResult> GetAuthorById([FromRoute] int id)
+        public async Task<IActionResult> GetAuthorById([FromRoute] int id, [FromQuery] int pageSkip)
         {
-            var authorById = await _authorsService.GetAuthorById(id);
-
             try
             {
+                var authorById = await _authorsService.GetAuthorById(id, pageSkip);
                 return Ok(authorById);
             }
-            catch (ArgumentException e)
+            catch (Exception e)
             {
                 return NotFound(e.Message);
             }
@@ -50,13 +48,12 @@ namespace BookHub.API.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<IActionResult> EditAuthor([FromRoute] int id,
+        public async Task<IActionResult> UpdateAuthor([FromRoute] int id,
          [FromBody] CreateAuthorRequestDTO authorRequestDTO)
         {
-            await _authorsService.UpdateAuthor(id, authorRequestDTO);
-
             try
             {
+                await _authorsService.UpdateAuthor(id, authorRequestDTO);
                 return Ok("Usuário editado com sucesso!");
             }
             catch (Exception e)
@@ -65,5 +62,22 @@ namespace BookHub.API.Controllers
             }
 
         }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public async Task<IActionResult> DeleteAuthor([FromRoute] int id)
+        {
+            try
+            {
+                await _authorsService.DeleteAuthor(id);
+                return Ok("Usuário deletado com sucesso!");
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+
+        }
+
     }
 }
