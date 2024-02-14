@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookHub.API.Infra.Persistence.Repositories
 {
-    public class CategoryRepository(AppDbContext _dbcontext) : ICategoryRepository
+    public class CategoryRepository(AppDbContext dbcontext) : ICategoryRepository
     {
-        private readonly AppDbContext _dbcontext = _dbcontext;
+        private readonly AppDbContext _dbcontext = dbcontext;
 
         public async Task<bool> Create(CreateCategoryDTO entityDTO)
         {
@@ -65,9 +65,7 @@ namespace BookHub.API.Infra.Persistence.Repositories
         {
             var categoryById = await _dbcontext.Categories
             .Include(c => c.Books.Skip(pageSkip * 10).Take(10))
-            .FirstOrDefaultAsync(c => c.Id == id);
-
-            if (categoryById == null)
+            .FirstOrDefaultAsync(c => c.Id.Equals(id)) ??
                 throw new ArgumentException("A categoria inserida não existe!");
 
             return categoryById;
@@ -75,7 +73,8 @@ namespace BookHub.API.Infra.Persistence.Repositories
 
         public async Task<Category> GetByName(string name)
         {
-            var categoryByName = await _dbcontext.Categories.FirstOrDefaultAsync(x => x.Name == name);
+            var categoryByName = await _dbcontext.Categories
+            .FirstOrDefaultAsync(x => x.Name.ToLower().Equals(name.ToLower()));
 
             return categoryByName;
         }
@@ -85,9 +84,24 @@ namespace BookHub.API.Infra.Persistence.Repositories
             _dbcontext.SaveChanges();
         }
 
-        public Task<bool> Update(int id, CreateCategoryDTO entityDTO)
+        public async Task<bool> Update(int id, CreateCategoryDTO entityDTO)
         {
-            throw new NotImplementedException();
+            var categoryById = await GetById(id, 0);
+
+            try
+            {
+                categoryById.Name = entityDTO.Name;
+                categoryById.Sumarry = entityDTO.Sumarry;
+
+                _dbcontext.Categories.Update(categoryById);
+                Save();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new ArgumentException(e.Message);
+            }
         }
     }
 }

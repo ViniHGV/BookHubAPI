@@ -6,20 +6,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookHub.API.Infra.Persistence.Repositories
 {
-    public class BookRepository(AppDbContext _dbContext, CategoryRepository _categoryRepository, AuthorsRepository _authorRepository) : IBookRepository
+    public class BookRepository(AppDbContext dbContext, ICategoryRepository categoryRepository, IAuthorRepository authorRepository) : IBookRepository
     {
-        private readonly AppDbContext _dbContext = _dbContext;
-        private CategoryRepository _categoryRepository { get; set; } = _categoryRepository;
+        private readonly AppDbContext _dbContext = dbContext;
+        private readonly ICategoryRepository _categoryRepository = categoryRepository;
+        private readonly IAuthorRepository _authorRepository = authorRepository;
 
         public async Task<bool> Create(CreateBookRequestDTO entityDTO)
         {
-            var getCategoryById = await _categoryRepository.GetById(entityDTO.CategoryId, 0);
-            var getAuthorById = await _authorRepository.GetById(entityDTO.AuthorId, 0);
-
-            if (getCategoryById == null)
+            var getCategoryById = await _categoryRepository.GetById(entityDTO.CategoryId, 0) ??
                 throw new ArgumentException("A categoria informada não existe!");
 
-            if (getAuthorById == null)
+            _ = await _authorRepository.GetById(entityDTO.AuthorId, 0) ??
                 throw new ArgumentException("O Autor informado não existe!");
 
             var createdBook = new Book(
@@ -46,10 +44,9 @@ namespace BookHub.API.Infra.Persistence.Repositories
 
         public async Task<bool> Delete(int id)
         {
-            var bookById = await GetById(id, 0);
-
             try
             {
+                var bookById = await GetById(id, 0);
                 _dbContext.Books.Remove(bookById);
                 Save();
                 return true;
@@ -73,9 +70,7 @@ namespace BookHub.API.Infra.Persistence.Repositories
             var bookById = await _dbContext.Books
             .Include(b => b.Category)
             .Include(b => b.Author)
-            .FirstOrDefaultAsync(x => x.Id == id);
-
-            if (bookById == null)
+            .FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
                 throw new ArgumentException("Livro não encontrado no sistema!");
 
             return bookById;
@@ -84,7 +79,8 @@ namespace BookHub.API.Infra.Persistence.Repositories
 
         public async Task<Book> GetByTitle(string title)
         {
-            var bookByTitle = await _dbContext.Books.FirstOrDefaultAsync(x => x.Title == title);
+            var bookByTitle = await _dbContext.Books
+            .FirstOrDefaultAsync(x => x.Title.ToLower().Equals(title.ToLower()));
 
             return bookByTitle;
         }
@@ -96,25 +92,22 @@ namespace BookHub.API.Infra.Persistence.Repositories
 
         public async Task<bool> Update(int id, UpdateBookRequestDTO entityDTO)
         {
-            var bookById = await GetById(id, 0);
-            var bookByTitle = await GetByTitle(entityDTO.Title);
-            var getCategoryById = await _categoryRepository.GetById(entityDTO.CategoryId, 0);
-
-            if (getCategoryById == null)
-                throw new ArgumentException("A categoria informada não existe!");
-
-            if (bookById == null)
+            var bookById = await GetById(id, 0) ??
                 throw new ArgumentException("Livro não encontrado para edição!");
 
-            if (bookByTitle != null)
+            var getCategoryById = await _categoryRepository.GetById(entityDTO.CategoryId, 0) ??
+                throw new ArgumentException("A categoria informada não existe!");
+
+            _ = await GetByTitle(entityDTO.Title) ??
                 throw new ArgumentException("Esse livro já existe no sistema!");
 
             try
             {
-                bookById.AuthorId = entityDTO.AuthorId;
+                bookById.Title = entityDTO.Title;
+                bookById.YearPublication = entityDTO.YearPublication;
                 bookById.ISBN = entityDTO.ISBN;
                 bookById.Sumarry = entityDTO.Sumarry;
-                bookById.YearPublication = entityDTO.YearPublication;
+                bookById.AuthorId = entityDTO.AuthorId;
                 bookById.CategoryId = entityDTO.CategoryId;
                 bookById.CategoryName = getCategoryById.Name;
 
