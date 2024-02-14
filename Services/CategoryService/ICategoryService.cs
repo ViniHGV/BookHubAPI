@@ -9,5 +9,6 @@ namespace BookHub.API.Services.CategoryService
         Task<Category> GetCategoryById(int id, int pageSkip);
         Task<bool> CreateCategory(CreateCategoryDTO categoryRequestDTO);
         Task<bool> UpdateCategory(int id, CreateCategoryDTO categoryRequestDTO);
+        Task<bool> DeleteCategory(int id);
     }
 }
