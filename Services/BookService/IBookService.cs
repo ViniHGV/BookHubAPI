@@ -10,5 +10,6 @@ namespace BookHub.API.Services.BookService
         Task<bool> CreateBook(CreateBookRequestDTO BookRequestDTO);
         Task<bool> UpdateBook(int id, UpdateBookRequestDTO BookRequestDTO);
         Task<bool> RemoveBook(int id);
+        Task<List<Book>> GetBooksByFilter(string filter);
     }
 }
