@@ -6,5 +6,6 @@ namespace BookHub.API.Contract
     public interface IBookRepository : IGenericRepository<Book, CreateBookRequestDTO, UpdateBookRequestDTO>
     {
         Task<Book> GetByTitle(string title);
+        Task<List<Book>> GetByFilter(string filter);
     }
 }
