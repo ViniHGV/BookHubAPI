@@ -65,6 +65,32 @@ namespace BookHub.API.Infra.Persistence.Repositories
             .ToListAsync();
         }
 
+        public async Task<List<Book>> GetByFilter(string filter)
+        {
+            var books = await _dbContext.Books
+            .Where(x => x.Title.Contains(filter))
+            .ToListAsync();
+
+            books = await _dbContext.Books
+            .Where(x => x.Author.Name.Contains(filter))
+            .ToListAsync();
+
+            books = await _dbContext.Books
+           .Where(x => x.CategoryName.Contains(filter))
+           .ToListAsync();
+
+            books = await _dbContext.Books
+            .Where(x => x.CategoryName.Contains(filter))
+            .ToListAsync();
+
+            if (books == null)
+            {
+                throw new ArgumentException("Nenhum livro foi encontrado!!");
+            }
+
+            return books;
+        }
+
         public async Task<Book> GetById(int id, int pageSkip)
         {
             var bookById = await _dbContext.Books
