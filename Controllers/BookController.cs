@@ -75,5 +75,21 @@ namespace BookHub.API.Controllers
                 return NotFound(e.Message);
             }
         }
+
+        [HttpGet]
+        [Route("filterby")]
+        public async Task<IActionResult> GetBooksByFilter([FromQuery] string filter)
+        {
+            try
+            {
+                var books = await _bookService.FindBookByFilter(filter);
+                return Ok(books);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
     }
 }
