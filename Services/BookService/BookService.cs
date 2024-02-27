@@ -26,6 +26,19 @@ namespace BookHub.API.Services.BookService
             }
         }
 
+        public async Task<List<Book>> GetBooksByFilter(string filter)
+        {
+            try
+            {
+                var books = await _bookRepository.GetByFilter(filter);
+                return books;
+            }
+            catch (Exception e)
+            {
+                throw new ArgumentException(e.Message);
+            }
+        }
+
         public async Task<List<Book>> GetAllBooks(int pageSkip)
         {
             return await _bookRepository.GetAll(pageSkip);
