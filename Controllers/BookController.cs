@@ -82,7 +82,7 @@ namespace BookHub.API.Controllers
         {
             try
             {
-                var books = await _bookService.FindBookByFilter(filter);
+                var books = await _bookService.GetBooksByFilter(filter);
                 return Ok(books);
             }
             catch (Exception e)
